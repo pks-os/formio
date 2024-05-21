@@ -67,7 +67,7 @@ class CSVExporter extends Exporter {
                 return value;
               }
 
-              const address =  value || {};
+              const address = this.getCorrectAddressByMode(component.enableManualMode, value) || {};
 
               // OpenStreetMap || Azure || Google
               // eslint-disable-next-line max-len
@@ -81,7 +81,7 @@ class CSVExporter extends Exporter {
                 return value;
               }
 
-              const address = value || {};
+              const address = this.getCorrectAddressByMode(component.enableManualMode, value) || {};
 
               // OpenStreetMap || Azure || Google
               return address.lat || _.get(address, 'position.lat') || _.get(address, 'geometry.location.lat') || '';
@@ -94,7 +94,7 @@ class CSVExporter extends Exporter {
                 return value;
               }
 
-              const address = value || {};
+              const address = this.getCorrectAddressByMode(component.enableManualMode, value) || {};
 
               // OpenStreetMap || Azure || Google
               return address.lon || _.get(address, 'position.lon') || _.get(address, 'geometry.location.lng') || '';
@@ -425,6 +425,13 @@ class CSVExporter extends Exporter {
   }
   /* eslint-enable max-statements */
 
+  getCorrectAddressByMode(mode, value) {
+    if (mode) {
+      return value?.address;
+    }
+    return value;
+  }
+
   /**
    * Start the CSV export by creating the headers.
    *
@@ -496,7 +503,6 @@ class CSVExporter extends Exporter {
     const updatedSubmission = {};
     const result = this.fields.map((column) => {
       const componentData = _.get(submission.data, column.path);
-
       // If the path had no results and the component specifies a path, check for a datagrid component
       if (_.isUndefined(componentData) && column.path.includes('.')) {
         let parts = column.path.split('.');
